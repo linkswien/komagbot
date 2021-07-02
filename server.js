@@ -7,18 +7,16 @@ const express = require('express')
 // Settings
 const config = require('./config.js')
 
-try {
-  if (fs.existsSync(config.telegraf.chatIDFilePath)) {
-    //file exists
-    let broadcastGroups = fs.readFileSync(config.telegraf.chatIDFilePath).toString().split('\n').filter(n => n)
-  }
-} catch(err) {
-  let broadcastGroups = []
+let broadcastGroups = []
+
+if (fs.existsSync(config.telegraf.chatIDFilePath)) {
+  //file exists
+  let broadcastGroups = fs.readFileSync(config.telegraf.chatIDFilePath).toString().split('\n').filter(n => n)
 }
 
 // Store and serialize data
 const addToBroadcastGroups = (chatID) => {
-  if (!broadcastGroups.find(chatID)) {
+  if (!broadcastGroups.includes(chatID)) {
     broadcastGroups.push(chatID)
     fs.appendFileSync(config.telegraf.chatIDFilePath, `${chatID}\n`)
   }
