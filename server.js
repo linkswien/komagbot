@@ -53,6 +53,18 @@ const broadcastMessage = (channels, message) => {
   })
 }
 
+const broadcastDocument = (channels, message, document) => {
+  channels.map(channel => {
+    bot.telegram.sendPhoto(channel, document, { 'disable_notification': true })
+  })
+}
+
+const broadcastMediaGroup = (channels, message, documents) => {
+  channels.map(channel => {
+    bot.telegram.sendMediaGroup(channel, documents, { 'disable_notification': true })
+  })
+}
+
 bot.telegram.setWebhook(config.publicURL + '/telegram' + config.telegraf.webhookSecret)
 
 // ExpressJS part
@@ -65,9 +77,9 @@ app.use(bot.webhookCallback('/telegram' + config.telegraf.webhookSecret))
 app.use(express.json())
 
 const assembleMessage = (posting) => {
-  let message = `Ein neuer Postingvorschlag „${posting.Titel}” von ${posting.Name}\nTextvorschlag: ${posting.Text}`
-  if (posting.Deadline) {
-    message += `\nDeadline: ${DateTime.fromISO(posting.Deadline).setZone('Europe/Vienna').setLocale('de-AT').toLocaleString(DateTime.DATETIME_MED)}`
+  let message = `Hier ist ein neuer Postingvorschlag von ${posting.Von} zum Thema „${posting.Titel}“\n\nTextvorschlag: ${posting.Text}`
+  if (posting.Datum) {
+    message += `\n\nWunschdatum: ${DateTime.fromISO(posting.Datum).setZone('Europe/Vienna').setLocale('de-AT').toLocaleString(DateTime.DATETIME_MED)}`
   }
   return message
 }
@@ -81,7 +93,29 @@ app.post('/webhook', function (req, res) {
     return
   }
 
-  broadcastMessage(broadcastGroups, assembleMessage(req.body))
+  let documents = []
+
+  // Check whether there's something to attach
+  if (req.body.posting.Bilder) {
+    documents = [...documents, ...req.body.posting.Bilder]
+  }
+  if (req.body.posting.Anhang) {
+    documents = [...documents, ...req.body.posting.Anhang]
+  }
+
+  // In any case: Send text message
+  broadcastMessage(broadcastGroups, assembleMessage(req.body.posting))
+
+  // And then some attachments if there are any
+  if (documents.length === 1) {
+    broadcastDocument(broadcastGroups, assembleMessage(req.body.posting), req.body.baseURL + documents[0].url)
+  }
+  if (documents.length > 1) {
+    broadcastMediaGroup(broadcastGroups, assembleMessage(req.body.posting), documents.map(document => {
+      return { type: 'document', media: req.body.baseURL + document.url }
+    }))
+  }
+
   res.send('success')
 })
 
