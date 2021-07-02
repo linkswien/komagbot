@@ -28,10 +28,8 @@ const bot = new Telegraf(config.telegraf.botSecret)
 
 // Add current group to broadcastGroups
 bot.command('subscribe', (ctx) => {
-  console.log(ctx.message)
   ctx.reply('Hallo, diese Gruppe bekommt ab sofort alle Komag Updates von mir berichtet…')
   addToBroadcastGroups(ctx.chat.id)
-  console.log(broadcastGroups)
 })
 
 // Remove current group from broadcastGroups
@@ -43,25 +41,27 @@ bot.command('subscribe', (ctx) => {
 
 // Broadcast message to all broadcastGroups
 bot.command('broadcast', (ctx) => {
-  console.log(ctx.message)
   broadcastMessage(broadcastGroups, ctx.message.text.replace('/broadcast', '') || 'Alarm!')
 })
 
 const broadcastMessage = (channels, message) => {
   channels.map(channel => {
     bot.telegram.sendMessage(channel, message)
+    console.log('[Telegram] Message sent to ' + channel)
   })
 }
 
 const broadcastDocument = (channels, message, document) => {
   channels.map(channel => {
     bot.telegram.sendPhoto(channel, document, { 'disable_notification': true })
+    console.log('[Telegram] Message sent to ' + channel)
   })
 }
 
 const broadcastMediaGroup = (channels, message, documents) => {
   channels.map(channel => {
     bot.telegram.sendMediaGroup(channel, documents, { 'disable_notification': true })
+    console.log('[Telegram] Message sent to ' + channel)
   })
 }
 
@@ -86,12 +86,14 @@ const assembleMessage = (posting) => {
 
 // Receive new Postingvorschlag
 app.post('/webhook', function (req, res) {
-  console.log(req.body)
-
   if (req.body.secret !== config.express.webhookSecret) {
     res.send('forbidden')
+    console.log('[Webhook] Received request without secret:')
+    console.log(req.body)
     return
   }
+
+  console.log('[Webhook] Received valid request')
 
   let documents = []
 
