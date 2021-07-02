@@ -11,7 +11,7 @@ let broadcastGroups = []
 
 if (fs.existsSync(config.telegraf.chatIDFilePath)) {
   //file exists
-  let broadcastGroups = fs.readFileSync(config.telegraf.chatIDFilePath).toString().split('\n').filter(n => n)
+  broadcastGroups = fs.readFileSync(config.telegraf.chatIDFilePath).toString().split('\n').filter(n => n)
 }
 
 // Store and serialize data
@@ -89,12 +89,3 @@ app.post('/webhook', function (req, res) {
 app.listen(config.express.port, () => {
   console.log('App served on port ' + config.express.port)
 })
-
-// Enable graceful stop
-const handleSignal = (signal) => {
-  bot.stop(signal)
-  fs.writeFileSync(config.telegraf.chatIDFilePath, broadcastGroups.join('\n'))
-}
-
-process.once('SIGINT', handleSignal)
-process.once('SIGTERM', handleSignal)
