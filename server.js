@@ -3,7 +3,6 @@ const { Telegraf } = require('telegraf')
 const { DateTime } = require('luxon')
 const fs = require('fs')
 const express = require('express')
-const https = require('https')
 
 // Settings
 const config = require('./config.js')
@@ -88,19 +87,12 @@ app.post('/webhook', function (req, res) {
   res.send('success')
 })
 
-// TLS options
-const tlsOptions = {
-  key: fs.readFileSync(config.express.tlsKeyPath),
-  cert: fs.readFileSync(config.express.tlsCertPath),
-}
-
 // Serve everything
-https.createServer(tlsOptions, app).listen(config.express.port, () => {
+app.listen(config.express.port, () => {
   console.log('App served on port ' + config.express.port)
 })
 
 // Enable graceful stop
-
 const handleSignal = (signal) => {
   bot.stop(signal)
   fs.writeFileSync(config.telegraf.chatIDFilePath, broadcastGroups.join('\n'))
