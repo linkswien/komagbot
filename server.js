@@ -65,6 +65,7 @@ const broadcastMediaGroup = (channels, message, documents) => {
   })
 }
 
+// Register bot with Telegram
 bot.telegram.setWebhook(config.publicURL + '/telegram' + config.telegraf.webhookSecret)
 
 // ExpressJS part
@@ -94,6 +95,34 @@ app.post('/webhook', function (req, res) {
   }
 
   console.log('[Webhook] Received valid request')
+
+  // This is what the JSON from the webhook looks like for now:
+  //  {
+  //    secret: 'secret string to match against',
+  //    posting: {
+  //      Von: 'test',
+  //      Titel: 'test',
+  //      Text: 'test',
+  //      Datum: '2021-07-08T10:00:00.000Z',
+  //      Bilder: [
+  //        {
+  //          "size": 181219,
+  //          "name": "file_name.ext",
+  //          "url": "/relative/url/to/file",
+  //          "extension": "ext",
+  //          "key": "other relative url, not sure why?"
+  //        }
+  //      ],
+  //      Anhang: [],
+  //      tableId: 'Budibase table ID',
+  //      _id: 'Budibase file ID',
+  //      'Auto ID': 11,
+  //      'Created At': '2021-07-02T18:46:32.130Z',
+  //      'Updated At': '2021-07-02T18:46:32.130Z',
+  //      type: 'row',
+  //      _rev: 'Budibase file reference?'
+  //    }
+  //  }
 
   let documents = []
 
