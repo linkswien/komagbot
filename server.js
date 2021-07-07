@@ -26,8 +26,17 @@ const addToBroadcastGroups = (chatID) => {
 // =====================
 const bot = new Telegraf(config.telegraf.botSecret)
 
+// Start bot
+bot.start((ctx) => {
+  ctx.reply(`Hallo, ich bin der KomagBot 👋
+Ich helfe der LINKS AG Kommunikation – kurz KOMAG – dabei, ihre Aufgaben in der Gruppe zu verteilen.
+
+Du kannst mich mit den folgenden Kommandos steuern:
+/redaktion – Setze die aktuelle Gruppe als Redaktionschat. Hier werden alle neuen Vorschläge automatisch reingepostet.`)
+})
+
 // Add current group to broadcastGroups
-bot.command('subscribe', (ctx) => {
+bot.command('redaktion', (ctx) => {
   ctx.reply('Hallo, diese Gruppe bekommt ab sofort alle Komag Updates von mir berichtet…')
   addToBroadcastGroups(ctx.chat.id)
 })
