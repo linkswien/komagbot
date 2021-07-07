@@ -46,7 +46,7 @@ bot.command('broadcast', (ctx) => {
 
 const broadcastMessage = (channels, message) => {
   channels.map(channel => {
-    bot.telegram.sendMessage(channel, message)
+    bot.telegram.sendMessage(channel, message, { 'parse_mode': 'html' })
     console.log('[Telegram] Message sent to ' + channel)
   })
 }
@@ -78,7 +78,7 @@ app.use(bot.webhookCallback('/telegram' + config.telegraf.webhookSecret))
 app.use(express.json())
 
 const assembleMessage = (posting) => {
-  let message = `Hier ist ein neuer Postingvorschlag von ${posting.Von} zum Thema „${posting.Titel}“\n\nTextvorschlag: ${posting.Text}`
+  let message = `Hier ist ein neuer Postingvorschlag von <b>${posting.Von}</b> mit Titel <b>${posting.Titel}</b>\n${posting.Text}`
   if (posting.Datum) {
     message += `\n\nWunschdatum: ${DateTime.fromISO(posting.Datum).setZone('Europe/Vienna').setLocale('de-AT').toLocaleString(DateTime.DATETIME_MED)}`
   }
